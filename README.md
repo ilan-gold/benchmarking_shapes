@@ -2,6 +2,29 @@
 
 Our investigation at the Paris 2025 scverse hackathon will be around shapes, with a focus on multiscale implementations for `SpatialData`.  For multiscale data, we will be using the [`TileJSON` specification](https://polusai.github.io/microjson/tiling/), which is agnostic to the on-disk format.  For a brief overview of this task, please see the github issue: https://github.com/scverse/202503_hackathon_owkin/issues/4
 
+## Getting started
+
+In the notebooks folder is a `geopandas.ipynb` notebook that walks through the format of shapes in geopandas and parquet (i.e., https://geoarrow.org/format.html) and how we can link it with `TileJSON`. 
+
+To set up the environment here, you can simply do (using [`uv`](https://github.com/astral-sh/uv))
+
+```
+uv venv venv
+source venv/bin/activate
+uv pip install -e ".[dev]"
+```
+
+These commands give you an editable version of what you have locally written in live environments as well as the dependencies I thought would be helpful at the time of writing.  If you do for the `microjson` repo, you can do something like
+
+```
+uv pip install -e path/to/microjson
+```
+
+to be able to develop with it locally in the environment you use here (may include benchmarking, hacking with notebooks etc).
+
+
+## Task details
+
 Here I'll go into more detail about the tasks and what is needed:
 
 - **zarr implementation of the spec**

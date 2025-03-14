@@ -1,0 +1,88 @@
+[build-system]
+build-backend = "hatchling.build"
+requires = [ "hatchling", "hatch-vcs" ]
+
+[project]
+name = "benchmarking-shapes"
+description = "Benchmarking (multiscale) shapes for SpatialData."
+requires-python = ">=3.11"
+license = "MIT"
+authors = [
+    { name = "Ilan Gold" },
+]
+maintainers = [
+    { name = "Ilan Gold", email = "ilan.gold@helmholtz-munich.de" },
+]
+readme = "README.md"
+classifiers = [
+    "Environment :: Console",
+    "Framework :: Jupyter",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Natural Language :: English",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Visualization",
+]
+dependencies = [
+    "geodatasets",
+    "geopandas[all]",
+    "microjson",
+    "zarr",
+    "shapely"
+]
+dynamic = [ "version" ]
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-xdist[psutil]"
+]
+dev = [
+    "pre-commit",
+]
+[tool.hatch.version]
+source = "vcs"
+[tool.hatch.build.targets.wheel]
+packages = ["benchmarks"]
+[tool.ruff]
+src = [ "benchmarks" ]
+exclude = ["venv", "notebooks"]
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff.lint]
+select = [
+    "E",   # Error detected by Pycodestyle
+    "EM",  # Traceback-friendly error messages
+    "F",   # Errors detected by Pyflakes
+    "FBT", # Boolean positional arguments
+    "W",   # Warning detected by Pycodestyle
+    "PLW", # Pylint
+    "UP",  # pyupgrade
+    "I",   # isort
+    "TC",  # manage type checking blocks
+    "TID", # Banned imports
+    "ICN", # Follow import conventions
+    "PTH", # Pathlib instead of os.path
+    "PT",  # Pytest conventions
+    "PYI", # Typing
+]
+ignore = [
+    # line too long -> we accept long comment lines; formatter gets rid of long code lines
+    "E501",
+    # Do not assign a lambda expression, use a def -> AnnData allows lambda expression assignments,
+    "E731",
+    # allow I, O, l as variable names -> I is the identity matrix, i, j, k, l is reasonable indexing notation
+    "E741",
+    # We use relative imports from parent modules
+    "TID252",
+    # Shadowing loop variables isn’t a big deal
+    "PLW2901",
+]
