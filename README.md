@@ -35,6 +35,10 @@ Because the spec is agnostic, implementing it for zarr should not be an issue. T
       
 Similarly, implementing it for parquet should not be an issue.  Same thing applies - fork the repo, benchmark here.
 
+- **Investigate making `microjson.Tile{Writer,Reader}` agnostic to the on-disk format**
+      
+For the above two to be successful, it would likely make sense to, beyond just hacking, try to make the `TileWriter` agnostic to the on-disk format.  This probably means just providing with `serialize` function of some sort, but would be very helpful for hacking.
+
 - **benchmarking of the format against all implementations in python**
       
 We won't just be comparing zarr vs parquet, but also the "normal" protobufs/microjson implementations already in the repo
