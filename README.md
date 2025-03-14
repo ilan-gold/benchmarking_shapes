@@ -1,4 +1,4 @@
-# Benchmarking (Multiscale) Shapes for `SpatialData
+# Benchmarking (Multiscale) Shapes for `SpatialData`
 
 Our investigation at the Paris 2025 scverse hackathon will be around shapes, with a focus on multiscale implementations for `SpatialData`.  For multiscale data, we will be using the [`TileJSON` specification](https://polusai.github.io/microjson/tiling/), which is agnostic to the on-disk format.  For a brief overview of this task, please see the github issue: https://github.com/scverse/202503_hackathon_owkin/issues/4
 
