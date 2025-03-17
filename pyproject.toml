@@ -35,7 +35,9 @@ dependencies = [
     "geopandas[all]",
     "microjson",
     "zarr",
-    "shapely"
+    "shapely",
+    "pyarrow",
+    "arguably"
 ]
 dynamic = [ "version" ]
 
@@ -50,9 +52,9 @@ dev = [
 [tool.hatch.version]
 source = "vcs"
 [tool.hatch.build.targets.wheel]
-packages = ["benchmarks"]
+packages = ["src/benchmarking_shapes"]
 [tool.ruff]
-src = [ "benchmarks" ]
+src = [ "src" ]
 exclude = ["venv", "notebooks"]
 [tool.ruff.format]
 docstring-code-format = true
