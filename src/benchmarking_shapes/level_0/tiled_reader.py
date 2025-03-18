@@ -133,6 +133,10 @@ class TileReaderZarr(TileReader):
             ragged_tiles[0][1][0],
         )
         offsets_2 = np.arange(len(offsets_1))
-        return shapely.from_ragged_array(
-            shapely.GeometryType.POLYGON, buffer, (offsets_1, offsets_2)
+        return geopandas.GeoDataFrame(
+            {
+                "geometry": shapely.from_ragged_array(
+                    shapely.GeometryType.POLYGON, buffer, (offsets_1, offsets_2)
+                )
+            }
         )

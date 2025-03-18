@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 
+import asyncio
 import json
+import platform
+import subprocess
 import time
 import timeit
 import xml.etree.ElementTree as ET
@@ -9,6 +12,8 @@ from enum import Enum
 from pathlib import Path
 
 import arguably
+import geopandas
+import shapely
 import zarr
 import zarrs  # noqa: F401
 from zarr.api.asynchronous import open_group as open_group_async
@@ -21,6 +26,16 @@ from benchmarking_shapes.level_0 import (
 )
 
 zarr.config.set({"codec_pipeline.path": "zarrs.ZarrsCodecPipeline"})
+
+
+def clear_cache():
+    if platform.system() == "Darwin":
+        subprocess.call(["sync", "&&", "sudo", "purge"])
+    elif platform.system() == "Linux":
+        subprocess.call(["sudo", "sh", "-c", "sync; echo 3 > /proc/sys/vm/drop_caches"])
+    else:
+        msg = "Unsupported platform"
+        raise RuntimeError(msg)
 
 
 class Encoding(Enum):
@@ -84,6 +99,27 @@ async def do_zarr(celldega_path: Path, index):
     await reader.getitem(index)
 
 
+async def read_full_zarr(
+    celldega_path: Path,
+):
+    name = celldega_path.name
+    path = f"../conversion/data/single_file/zarr/shapes/{name}/geo.zarr"
+    parent_group = await zarr.api.asynchronous.open_group(path, mode="r")
+    buffer_arr, offsets_arr = await asyncio.gather(
+        parent_group.get("buffer"), parent_group.get("offsets")
+    )
+    buffer, offsets = await asyncio.gather(
+        buffer_arr.getitem(()), offsets_arr.getitem(())
+    )
+    return geopandas.GeoDataFrame(
+        {
+            "geometry": shapely.from_ragged_array(
+                shapely.GeometryType.POLYGON, buffer, offsets
+            )
+        }
+    )
+
+
 def index_generator(shape) -> Iterable[Index]:
     yield (slice(shape[0] // 2), Ellipsis)  # big part, half
     yield (
@@ -99,10 +135,12 @@ def index_parquet(reader: TileReaderParquet, index: Index):
 
 @arguably.command
 async def benchmark(celldega_path: Path):
+    geometry_type = GeometryType.Shapes
     _, shape = parse_celldega(celldega_path)
     for encoding in Encoding:
-        parquet_tile_reader = open_parquet(celldega_path, GeometryType.Shapes, encoding)
+        parquet_tile_reader = open_parquet(celldega_path, geometry_type, encoding)
         for index in index_generator(shape):
+            clear_cache()
             time_taken = timeit.timeit(
                 lambda: index_parquet(parquet_tile_reader, index), number=5
             )
@@ -110,12 +148,27 @@ async def benchmark(celldega_path: Path):
                 f"Indexing a tiled geoparquet using encoding {encoding} with index {index} took {time_taken} seconds"
             )
     for index in index_generator(shape):
+        clear_cache()
         t = time.time()
         time_taken = await do_zarr(celldega_path, index)
         time_taken = time.time() - t
         print(
             f"Indexing a tiled zarr using with index {index} took {time_taken} seconds"
         )
+    for encoding in Encoding:
+        clear_cache()
+        time_taken = timeit.timeit(
+            lambda: geopandas.read_parquet(
+                f"../conversion/data/single_file/{encoding.value}/{('shapes' if geometry_type == GeometryType.Shapes else 'points')}/{celldega_path.name}/geo_parquet.parquet"
+            ),
+            number=5,
+        )
+        print(
+            f"Reading a single geoparquet with encoding {encoding} took {time_taken} seconds"
+        )
+    t = time.time()
+    await read_full_zarr(celldega_path)
+    print("Reading a single zarr store took", time.time() - t)
 
 
 if __name__ == "__main__":
