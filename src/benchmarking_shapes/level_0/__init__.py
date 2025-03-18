@@ -1,4 +1,4 @@
-from ._types import Index, Index1D
-from .celldega_parquet_reader import CellDegaTileReader
+from ._types import GeometryType, Index, Index1D
+from .tiled_reader import TileReaderParquet, TileReaderZarr
 
-__all__ = ["CellDegaTileReader", "Index", "Index1D"]
+__all__ = ["TileReaderParquet", "TileReaderZarr", "Index", "Index1D", "GeometryType"]

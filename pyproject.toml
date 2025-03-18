@@ -32,12 +32,14 @@ classifiers = [
 ]
 dependencies = [
     "geodatasets",
+    "dask-geopandas",
     "geopandas[all]",
     "microjson",
     "zarr",
     "shapely",
     "pyarrow",
-    "arguably"
+    "arguably",
+    "geoarrow",
 ]
 dynamic = [ "version" ]
 
